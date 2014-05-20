@@ -1,0 +1,592 @@
+<!DOCTYPE html>
+
+<html>
+<head>
+  <title>helpers.js</title>
+  <meta http-equiv="content-type" content="text/html; charset=UTF-8">
+  <meta name="viewport" content="width=device-width, target-densitydpi=160dpi, initial-scale=1.0; maximum-scale=1.0; user-scalable=0;">
+  <link rel="stylesheet" media="all" href="docco.css" />
+</head>
+<body>
+  <div id="container">
+    <div id="background"></div>
+    
+    <ul class="sections">
+        
+          <li id="title">
+              <div class="annotation">
+                  <h1>helpers.js</h1>
+              </div>
+          </li>
+        
+        
+        
+        <li id="section-1">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-1">&#182;</a>
+              </div>
+              
+            </div>
+            
+            <div class="content"><div class='highlight'><pre><span class="hljs-keyword">var</span> app = app || {};
+
+(<span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">($)</span> {</span></pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-2">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-2">&#182;</a>
+              </div>
+              <p>This method return the <em>HTML</em> code of an URL in <em>xml</em> format</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>    <span class="hljs-keyword">var</span> yqlRequest = <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">(url, xpath, callback)</span> {</span>
+        <span class="hljs-keyword">var</span> baseUrl = <span class="hljs-string">"http://query.yahooapis.com/v1/public/yql?"</span>,
+
+            query = <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">(url)</span> {</span>
+                <span class="hljs-keyword">return</span> <span class="hljs-string">"select * from html where url='"</span> + url + <span class="hljs-string">"' and compat='html5' and xpath='"</span> + xpath + <span class="hljs-string">"'"</span>;
+            },
+
+            opts = {
+                url:  baseUrl,
+                dataType: <span class="hljs-string">"xml"</span>,
+                data: { q: query(url), format: <span class="hljs-string">"xml"</span> },
+                <span class="hljs-comment">/*
+                success: function(xml) {
+                    var results = $(xml).find("results").html();
+
+                    return results;
+                },
+                error: function(xhr, status, err) {
+                    console.error(xhr, status, err);
+                }
+                */</span>
+            };
+
+        <span class="hljs-keyword">return</span> $.ajax(opts);
+    };   
+
+    <span class="hljs-keyword">var</span> seo = {
+
+        googleSnippet: <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">(title, siteUrl, keyword, metaDescription)</span> {</span>
+            <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">cutString</span><span class="hljs-params">(limit, string)</span> {</span>
+                <span class="hljs-keyword">var</span> result = <span class="hljs-string">""</span>;
+
+                <span class="hljs-keyword">if</span> (string.length &gt; limit) {
+                    result = string.substr(<span class="hljs-number">0</span>, limit-<span class="hljs-number">3</span>) + <span class="hljs-string">"..."</span>;
+                }
+
+                <span class="hljs-keyword">return</span> result;
+            }
+
+            <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">getCleanTitle</span><span class="hljs-params">(url, title)</span> {</span>
+                <span class="hljs-keyword">var</span> slugified = <span class="hljs-keyword">this</span>.slugify(title.split(<span class="hljs-string">'-'</span>)[<span class="hljs-number">0</span>]),
+                    cleanTitle = slugified.replace(<span class="hljs-regexp">/[^-a-zA-Z0-9]/g</span>, <span class="hljs-string">''</span>);
+
+                <span class="hljs-keyword">return</span> url + <span class="hljs-string">'/'</span> + cleanTitle;
+            }
+
+            <span class="hljs-keyword">this</span>.title = cutString(<span class="hljs-number">68</span>, title);
+            <span class="hljs-keyword">this</span>.siteUrl = cutString(<span class="hljs-number">75</span>, siteUrl);
+            <span class="hljs-keyword">this</span>.keyword = keyword;
+            <span class="hljs-keyword">this</span>.metaDescription = cutString(<span class="hljs-number">156</span>, metaDescription);
+            <span class="hljs-keyword">this</span>.cleanUrl = cutString(<span class="hljs-number">75</span>, getCleanTitle(<span class="hljs-keyword">this</span>.siteUrl, title));
+
+            <span class="hljs-keyword">return</span> {
+                title: <span class="hljs-keyword">this</span>.title,
+                siteUrl: <span class="hljs-keyword">this</span>.siteUrl,
+                keyword: <span class="hljs-keyword">this</span>.keyword,
+                metaDescription: <span class="hljs-keyword">this</span>.metaDescription,
+                cleanUrl: <span class="hljs-keyword">this</span>.cleanUrl
+            };
+        },
+
+        request: <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">(endpoint, data, callback)</span> {</span>
+            $.ajax({
+                url: endpoint,
+                type: <span class="hljs-string">'GET'</span>,
+                data: data,
+                success: <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">(data, textStatus, jqXHR)</span> {</span>
+                    callback(data, textStatus, jqXHR);
+                },
+                error: <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">(jqXHR, textStatus, error)</span> {</span>
+                    callback(jqXHR, textStatus, error);
+                }
+            });
+        },
+
+        isPage: <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">(url, callback)</span> {</span>
+            <span class="hljs-keyword">var</span> newUrl = <span class="hljs-string">'https://graph.facebook.com/?ids='</span> + url;
+
+            <span class="hljs-keyword">this</span>.request(newUrl, <span class="hljs-literal">null</span>, <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">(data, textStatus, jqXHR)</span> {</span>
+                <span class="hljs-keyword">if</span> (textStatus === <span class="hljs-string">"success"</span>) {
+                    callback(data);
+                } <span class="hljs-keyword">else</span> {
+                    callback(jqXHR);
+                }
+            });
+        },</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-3">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-3">&#182;</a>
+              </div>
+              <p>Scroll the page to an <code>#id</code> with a smooth transition </p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>        smoothScroll: <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">(id)</span> {</span>
+            <span class="hljs-keyword">var</span> target = $(id).offset().top - <span class="hljs-number">60</span>;
+            $(<span class="hljs-string">'html, body'</span>).animate({scrollTop:target}, <span class="hljs-number">500</span>);
+        },</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-4">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-4">&#182;</a>
+              </div>
+              <p>Disallow scrolling on <code>body</code></p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>        stopScroll:<span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">()</span> {</span>
+            $(<span class="hljs-string">'body'</span>).on(<span class="hljs-string">'mousewheel touchmove'</span>, <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">(e)</span> {</span>
+                e.preventDefault();
+            });
+        },</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-5">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-5">&#182;</a>
+              </div>
+              <p>Allow scrolling back again</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>        allowScroll: <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">()</span> {</span>
+            $(<span class="hljs-string">'body'</span>).off(<span class="hljs-string">'mousewheel touchmove'</span>);
+        },</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-6">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-6">&#182;</a>
+              </div>
+              <p>The <strong>Flesch Reading Ease</strong> measures textual difficulty, with indicates how easy a text is to read.
+This method return the score between 0 and 100
+<a href="http://bit.ly/1gQT8eE">more about it</a></p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>        getFleschReadingEase: <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">(totalWords, totalSentences, totalSyllables)</span> {</span>
+            <span class="hljs-keyword">var</span> score = <span class="hljs-number">206.835</span> - (<span class="hljs-number">1.015</span>*totalWords)/totalSentences - (<span class="hljs-number">84.6</span>*totalSyllables)/totalWords;
+
+            <span class="hljs-keyword">return</span> score.toFixed(<span class="hljs-number">2</span>);
+        },</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-7">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-7">&#182;</a>
+              </div>
+              <p>Get the <a href="http://bit.ly/1gQTphI">keyword density</a> of a string</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>        getKeywordDensity: <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">(text, keyword)</span> {</span></pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-8">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-8">&#182;</a>
+              </div>
+              <p><code>tkn</code>: how many times you repeated a specific keyword</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>            <span class="hljs-keyword">var</span> tkn = text.toLowerCase().replace(<span class="hljs-regexp">/\s\./g</span>, <span class="hljs-string">'.'</span>).replace(<span class="hljs-regexp">/\s\,/g</span>, <span class="hljs-string">'.'</span>).split(<span class="hljs-string">' '</span>).length,</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-9">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-9">&#182;</a>
+              </div>
+              <p><code>nkr</code>: total words in the analyzed text</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>            nkr = <span class="hljs-keyword">this</span>.getKeywordsOnString(text, keyword);
+
+            <span class="hljs-keyword">return</span> ((nkr/tkn)*<span class="hljs-number">100</span>).toFixed(<span class="hljs-number">2</span>);
+        },</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-10">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-10">&#182;</a>
+              </div>
+              <p>Check if headers <code>h1</code>, <code>h2</code>, <code>h3</code>, <code>h4</code>, <code>h5</code> and <code>h6</code> exists</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>        subHeadings: <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">(text, keyword)</span> {</span>
+            <span class="hljs-keyword">var</span> subHeadings = <span class="hljs-keyword">new</span> <span class="hljs-built_in">RegExp</span>(<span class="hljs-string">'&lt;h[1-6]&gt;.*'</span> + keyword + <span class="hljs-string">'.*&lt;\/h[1-6]&gt;'</span>, <span class="hljs-string">'gi'</span>) || <span class="hljs-string">''</span>,
+            matches = text.match(subHeadings);</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-11">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-11">&#182;</a>
+              </div>
+              <p><code>exist</code> method return <code>true</code> if exist at least one keyword in some headline</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>            <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">exist</span><span class="hljs-params">()</span> {</span>
+                <span class="hljs-keyword">if</span> (matches) {
+                    <span class="hljs-keyword">return</span> <span class="hljs-literal">true</span>;
+                } <span class="hljs-keyword">else</span> {
+                <span class="hljs-keyword">return</span> <span class="hljs-literal">false</span>;
+                }
+            }</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-12">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-12">&#182;</a>
+              </div>
+              <p><code>keywords</code> method return how many keywords found on the headlines</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>            <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">keywords</span><span class="hljs-params">()</span> {</span>
+                <span class="hljs-keyword">if</span> (matches) {
+                    <span class="hljs-keyword">return</span> matches.length;
+                } <span class="hljs-keyword">else</span> {
+                    <span class="hljs-keyword">return</span> <span class="hljs-number">0</span>;
+                }
+            }
+
+            <span class="hljs-keyword">return</span> {
+                exist: exist,
+                keywords: keywords
+            };
+        },</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-13">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-13">&#182;</a>
+              </div>
+              <p>Check if there is any Images</p>
+<p><strong>TODO</strong>: Make a method that check if the images has <code>alt</code> attribute and return how many doesn’t have it</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>        getImagesLength: <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">(text)</span> {</span>
+            <span class="hljs-keyword">var</span> img = <span class="hljs-keyword">new</span> <span class="hljs-built_in">RegExp</span>(<span class="hljs-string">'&lt;img '</span>, <span class="hljs-string">'gi'</span>),
+                matches = text.match(img) || <span class="hljs-string">''</span>;
+
+            <span class="hljs-keyword">return</span> matches.length;
+        },</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-14">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-14">&#182;</a>
+              </div>
+              <h2 id="string-manipulation">String Manipulation</h2>
+
+            </div>
+            
+        </li>
+        
+        
+        <li id="section-15">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-15">&#182;</a>
+              </div>
+              <p>Get how may <em>syllables</em> has a string</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>        getSyllables: <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">(text)</span> {</span>
+            <span class="hljs-keyword">if</span> (text.length &lt;= <span class="hljs-number">3</span>) {
+                <span class="hljs-keyword">return</span> <span class="hljs-number">1</span>;
+            } <span class="hljs-keyword">else</span> {
+                <span class="hljs-keyword">return</span> text.replace(<span class="hljs-regexp">/^y/</span>, <span class="hljs-string">''</span>).match(<span class="hljs-regexp">/[aeiou]{1,2}/g</span>).length*<span class="hljs-number">0.92</span>;
+            }
+        },</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-16">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-16">&#182;</a>
+              </div>
+              <p>Get how many <em>keywords</em> has a string</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>        getKeywordsOnString: <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">(text, keyword)</span> {</span>
+            keyword = <span class="hljs-keyword">new</span> <span class="hljs-built_in">RegExp</span>(keyword, <span class="hljs-string">'gi'</span>);
+            <span class="hljs-keyword">var</span> matches = text.match(keyword) || <span class="hljs-string">''</span>;
+
+            <span class="hljs-keyword">return</span> matches.length;
+        },</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-17">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-17">&#182;</a>
+              </div>
+              <p>Get how many <em>words</em> has a string</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>        getTotalWords: <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">(text)</span> {</span>
+            <span class="hljs-keyword">var</span> totalWords = text.replace(<span class="hljs-regexp">/\s\./g</span>, <span class="hljs-string">'.'</span>).replace(<span class="hljs-regexp">/\s\,/g</span>, <span class="hljs-string">','</span>).split(<span class="hljs-string">' '</span>).length;
+            <span class="hljs-keyword">return</span> totalWords;
+        },</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-18">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-18">&#182;</a>
+              </div>
+              <p>Get end of paragraph of a <code>html</code> document</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>        getEndOfParagraph: <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">(text)</span> {</span>
+            <span class="hljs-keyword">var</span> endOfParagraph = text.split(<span class="hljs-string">'^nbsp;'</span>) || <span class="hljs-string">''</span>;
+            <span class="hljs-keyword">return</span> endOfParagraph.length;
+        },</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-19">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-19">&#182;</a>
+              </div>
+              <p>Get the first paragraph of a <code>html</code> document</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>        getFirstParagraph: <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">(text)</span> {</span>
+            <span class="hljs-keyword">var</span> firstParagraph = text.match(<span class="hljs-regexp">/&lt;p&gt;.*&lt;\/p&gt;/gi</span>)[<span class="hljs-number">0</span>] || <span class="hljs-string">''</span>;
+            <span class="hljs-keyword">return</span> firstParagraph;
+        },</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-20">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-20">&#182;</a>
+              </div>
+              <p>Get number of total sentences of a string</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>        getTotalSentences: <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">(text)</span> {</span>
+            text = text || <span class="hljs-string">''</span>;
+
+            <span class="hljs-keyword">if</span> (text.split(<span class="hljs-string">'.'</span>).length &gt; <span class="hljs-number">1</span>) {
+                <span class="hljs-keyword">return</span> text.match(<span class="hljs-regexp">/\.\s/g</span>).length + <span class="hljs-number">1</span>;
+            } <span class="hljs-keyword">else</span> {
+                <span class="hljs-keyword">return</span> <span class="hljs-number">1</span>;
+            }
+        },</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-21">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-21">&#182;</a>
+              </div>
+              <p>Remove all the <code>HTML</code> tags from a string and return it clean</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>        stripHTML: <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">(html)</span> {</span>
+            <span class="hljs-keyword">return</span> html.replace(<span class="hljs-regexp">/(&lt;[^&gt;]+)&gt;/ig</span>, <span class="hljs-string">''</span>);
+        },</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-22">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-22">&#182;</a>
+              </div>
+              <p>Add the <code>&lt;strong&gt;</code> tag to the <code>keywords</code> found in a <code>string</code></p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>        makeKeywordsBold: <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">(text, keyword)</span> {</span>
+            <span class="hljs-keyword">var</span> boldText = text.replace(keyword, <span class="hljs-string">'&lt;strong&gt;'</span> + keyword + <span class="hljs-string">'&lt;/strong&gt;'</span>);
+            <span class="hljs-keyword">return</span> boldText;
+        },</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-23">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-23">&#182;</a>
+              </div>
+              <p>Convert <code>something like this</code> into <code>Something Like This</code></p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>        capitalize: <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">(text)</span> {</span>
+            <span class="hljs-keyword">var</span> textCapitalized = text.replace(<span class="hljs-regexp">/^(.)|\s(.)/g</span>, <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">($1)</span> {</span> <span class="hljs-keyword">return</span> $<span class="hljs-number">1.</span>toUpperCase() });
+            <span class="hljs-keyword">return</span> textCapitalized;
+        },</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-24">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-24">&#182;</a>
+              </div>
+              <p>Convert <code>Something Like This</code> into <code>something-like-this</code></p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>        slugify: <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">(text)</span> {</span>
+            <span class="hljs-keyword">var</span> slugified = text.toLowerCase().replace(<span class="hljs-regexp">/\s/g</span>, <span class="hljs-string">'-'</span>);</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-25">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-25">&#182;</a>
+              </div>
+              <p>check if the last char is ‘-‘ and delete it </p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>            <span class="hljs-keyword">if</span> (slugified.substr(-<span class="hljs-number">1</span>) === <span class="hljs-string">'-'</span>) {
+                slugified = slugified.substr(<span class="hljs-number">0</span>, slugified.length -<span class="hljs-number">1</span>);
+            }
+
+            <span class="hljs-keyword">return</span> slugified;
+        }
+    };
+
+    app.yqlRequest = yqlRequest;
+    app.seo = seo;
+})(jQuery);
+
+
+
+<span class="hljs-comment">/*
+
+query example: 'select * from html where url="http://jolv.me" and compat="html5" and xpath="/html"'
+
+## Links related to YQL and AJAX requests to it
+
+http://papermashup.com/parse-xml-with-jquery/
+http://myjson.com/1q00
+http://code.tutsplus.com/tutorials/quick-tip-cross-domain-ajax-request-with-yql-and-jquery--net-10225
+http://stackoverflow.com/questions/680562/can-javascript-read-the-source-of-any-web-page
+http://davidwalsh.name/write-javascript-promises
+
+*/</span></pre></div></div>
+            
+        </li>
+        
+    </ul>
+  </div>
+</body>
+</html>
