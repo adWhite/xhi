@@ -3,11 +3,15 @@ var app = app || {};
 ;(function(app) {
 
     // ## Utils
-    function createHTMLlist(arr, className) {
+    function createHTMLlist(arr, className, isMarkup) {
         var result = [];
-        result.push("<br /><ul class='" + className + "'>");
+        result.push("<ul class='" + className + "'>");
         for (var i in arr) {
-            result.push("<li>" + arr[i] + "</li>");
+            if (isMarkup) {
+                result.push("<li><code>" + _.escape(arr[i]) + "</code></li>");
+            } else {
+                result.push("<li>" + arr[i] + "</li>");
+            }
         }
         result.push("</ul>");
         return result.join("");
@@ -31,26 +35,34 @@ var app = app || {};
             var titleLength = title.length;
 
             if (titleLength > 40 && titleLength < 70) {
-                result.msg = "Title length is less than 70 and more than 40";
-                result.icon = "icon-good";
+                result = {
+                    msg : "Title length is less than 70 and more than 40",
+                    icon: "icon-good"
+                }
             } 
 
             if (titleLength > 70) {
-                result.msg = "Title is to long";
-                result.icon = "icon-normal";
-                result.recommendation = "it will look cutted on the google results";
+                result = {
+                    msg: "Title is to long",
+                    icon: "icon-normal",
+                    recommendation: "It will look cuted on the google results"
+                }
             }
 
             if (titleLength < 40) {
-                result.msg = "Title is to short";
-                result.icon = "icon-bad";
-                result.recommendation = "need to add some more words, but less than 70 chars";
+                result = {
+                    msg: "Title is to short",
+                    icon: "icon-bad",
+                    recommendation: "need to add some more words, but less than 70 chars"
+                }
             }
         } else {
-            result.state = "";
-            result.msg = "Not title tag found";
-            result.recommendation = "Ensure that you have a `title` tag";
-            result.icon = "icon-bad";
+            result = {
+                state: "",
+                msg: "Title tag not found",
+                recommendation: "Ensure that you have a `title` tag",
+                icon: "icon-bad"
+            }
         }
 
         //  1.2 check if `keyword` is in the title
@@ -72,10 +84,12 @@ var app = app || {};
             //  2.1 check if meta description is less than 156 chars
             //  **TODO** check if there is some minium chars required
             if (md.length < 156) {
-                result.icon = "icon-good"
-                result.state = "Meta description length is " + md.length + " chars";        
-                result.msg = "this is less than the 156 maxium required";
-                result.recommendation = "Everything good here";
+                result = {
+                    icon : "icon-good",
+                    state : "Meta description length is " + md.length + " chars",
+                    msg : "this is less than the 156 maxium required",
+                    recommendation : "Everything good here"
+                }
             } else {
                 result.icon = "icon-bad"
                 result.state = "Meta description length is " + md.length + " chars";        
@@ -189,7 +203,7 @@ var app = app || {};
                 }
 
                 result.recommendation = "you can add some of these (depending of your needs) to improve your seo: ";
-                result.markup = createHTMLlist(richSnippetsMissing, "rich-snippets-results");
+                result.markup = createHTMLlist(richSnippetsMissing, "rich-snippets-results", false);
 
             // If not, everything is good here
             } else {
@@ -219,6 +233,8 @@ var app = app || {};
             result = {},
             imagesLength = images.numOfMatches || 0;
 
+        console.log(images.matches);
+
         // If we found images without alt attribute
         // we say bad things and ouputs a list of 
         // img tags that are with no alt tag 
@@ -227,7 +243,8 @@ var app = app || {};
             result.state = imagesLength + " images without alt attribute found";
             result.msg = "you need to add an alt attribute that includes the primary keyword";
             result.recommendation = "Images withouth alt attr found that you need to fix: "; 
-            result.markup = "<br /><code>" + _.escape(images.matches) + "</code>";
+            // result.markup = "<code class='hljs xml'>" + _.escape(images.matches) + "</code>";
+            result.markup = createHTMLlist(images.matches, "no-alt-results", true);
 
         // If we can't find any image without alt attributes then
         // **note**: this doesn't mean that everything is gook, we

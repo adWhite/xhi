@@ -599,3 +599,21 @@ input {
 input {
   margin-bottom: 1em;
 }
+.no-alt-results,
+.app-results {
+  margin-left: 0;
+  padding-left: 0;
+  list-style: none;
+}
+.no-alt-results code {
+  padding: 0 0 0 5px;
+}
+.app-result {
+  margin-bottom: 2em;
+  padding-bottom: 1em;
+  border-bottom: 1px dotted #ccc;
+}
+.app-result:last-child {
+  margin-bottom: 0;
+  border-bottom: 0;
+}

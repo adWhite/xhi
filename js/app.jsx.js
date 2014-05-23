@@ -15,11 +15,10 @@ var app = app || {};
             return { data: data };    
         },
 
-        getResultsFromServer: function() {
+        getResultsFromServer: function(data) {
             var that = this;
 
-            //yqlRequest("http://jhues.com/hair-salon-in-the-woodlands-tx/", '/html')
-             yqlRequest("http://adWhite.com", '/html')
+             yqlRequest(data.url, '/html')
             .done(function(xml) {
                 // Not trying to use RegExp to parse HTML anymore because
                 // http://stackoverflow.com/questions/1732348/regex-match-open-tags-except-xhtml-self-contained-tags
@@ -66,6 +65,13 @@ var app = app || {};
                 results.push(app.checkGoogleAnalytics($dom.find("html").html()));
 
                 that.setState({ data: results });
+
+
+                setTimeout(function() {
+                    $('code').each(function(i, e) {
+                        hljs.highlightBlock(e)
+                    });
+                }, 1000);
             })
             .fail(function(xhr, status, err) {
                 console.error(xhr, status, err);
@@ -86,6 +92,37 @@ var app = app || {};
         }  
     });
 
+    var Form = React.createClass({
+        getInitialState: function (){
+            return { value: "Hello World!" };
+        },
+
+        handleChange: function() {
+            this.setState({ value: event.target.value });   
+        },
+
+        handleSubmit: function() {
+
+            this.props.onFormSubmit({url: this.state.value});
+
+            return false;
+        },
+
+        render: function() {
+            var value = this.state.value;
+            
+            return (
+                <form className="app-form" onSubmit={this.handleSubmit}>
+                    <label>Keyword (optional)</label>
+                    <input type="text" ref="keyword" />
+                    <label>URL</label>
+                    <input type="text" ref="url" value={value} onChange={this.handleChange} />
+                    <input type="submit" id="check-button" value="Check Website" />     
+                </form>
+            );
+        }
+    });
+
     var Results = React.createClass({
         render: function() {
             var results = this.props.data.map(function(result) {
@@ -100,32 +137,33 @@ var app = app || {};
         render: function() {
             var data = this.props.data;
 
-            return <li><i class={data.icon}></i> {data.state}, {data.msg}, {data.recommendation} <span dangerouslySetInnerHTML={{__html: data.markup}} /> </li>
-        }
-    });
-
-    var Form = React.createClass({
-        handleSubmit: function() {
-            var url = this.refs.url.getDOMNode().value.trim();
-            console.log(url);
-
-            this.props.onFormSubmit({url: url});
-
-            return false;
-        },
-
-        render: function() {
             return (
-                <form className="app-form" onSubmit={this.handleSubmit}>
-                    <label>Keyword (optional)</label>
-                    <input type="text" ref="keyword" />
-                    <label>URL</label>
-                    <input type="text" ref="url" placeholder={this.props.url} />
-                    <input type="submit" id="check-button" value="Check Website" />     
-                </form>
-            );
+                    <li className="app-result">
+                        <i className={data.icon}></i> 
+                        <p className="app-result-state"><strong>{data.state}</strong></p>
+                        <p className="app-result-msg">{data.msg}</p>
+                        <p className="app-result-recommendation"><em>{data.recommendation}</em></p>
+                        <span className="app-result-markup" dangerouslySetInnerHTML={{__html: data.markup}} /> 
+                    </li>
+                );
+
+
         }
     });
+
+    /**
+     * How to get the picture profile from a google+ account
+     * http://stackoverflow.com/questions/9128700/getting-google-profile-picture-url-with-user-id
+     *
+     */
+
+    // var GoogleSnippet = React.createClass({
+    //     render: function() {
+    //         return (
+    //                 
+    //             )
+    //     } 
+    // });
 
     React.renderComponent(
         <AppUI />, 
