@@ -13,14 +13,6 @@ module.exports = function(grunt) {
     grunt.initConfig({
         site: siteConfig,
 
-        php: {
-            watch: {},
-            options: {
-                keepalive: true,
-                base: '<%= site.dev %>'
-            }
-        },
-
         watch: {
             options: {
                 livereload: true
@@ -31,7 +23,7 @@ module.exports = function(grunt) {
             },
 
             jsx: {
-                files: '<%= site.dev %>/js/*.jsx.js',
+                files: '<%= site.dev %>/jsx/*.jsx.js',
                 tasks: ['react']
             },
 
@@ -48,7 +40,7 @@ module.exports = function(grunt) {
                     '<%= site.dev %>/{,*/}*.php',
                     '<%= site.dev %>/img/{,*/}*.{png, jpg, jpeg, gif}',
                     '<%= site.dev %>/js/{,*/}*.js',
-                    '<%= site.dev %>/js/{,*/}*.jsx.js'
+                    '<%= site.dev %>/jsx/{,*/}*.jsx.js'
                 ]
             }
         },
@@ -66,7 +58,7 @@ module.exports = function(grunt) {
         react: {
             target: {
                 files: {
-                    '<%= site.dev %>js/app.js' : '<%= site.dev %>js/app.jsx.js'
+                    '<%= site.dev %>js/app.js' : ['<%= site.dev %>jsx/*.jsx.js']
                 }
             }
         },

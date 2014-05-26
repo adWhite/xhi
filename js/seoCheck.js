@@ -145,14 +145,18 @@ var app = app || {};
         // Map the richSnippets `Object` and see if we can find matches
         // on the `DOM Object`, if is not repited then push into the `snippetsFound` array
 
+        var pageMarkup = $dom.find('html').html() || "";
         $.each(richSnippets, function(key, val) {
             // Save kind of rich snippets to an array for future use
             kindOfRichSnippets.push(val);
 
             // If matches found are more than 0 then proceed to save the results
-            if ($dom.find('html').html().indexOf(key) > -1) {
-                snippetsFound.push(val);
-            } 
+            if (pageMarkup.length > 1) {
+                if (pageMarkup.indexOf(key) > -1) {
+                    snippetsFound.push(val);
+                }
+            }
+             
         });
 
         // Strip repeated elements
